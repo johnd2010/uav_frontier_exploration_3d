@@ -1,9 +1,9 @@
 <launch>
   <arg name="rate" default="1"/>
-  <arg name="namespace" default="$(env UAV_NAMESPACE)"/>
+  <arg name="namespace" default="$(env UAV_NAME)"/>
   <arg name="odometry" default="odometry"/>
   <arg name="cloud_in" default="submap_cloud"/>
-  <arg name="point_reached" default="exploration/point_reached"/>
+  <arg name="point_reached" default="control_manager/diagnostics"/>
   <arg name="config_filename" default="$(find uav_frontier_exploration_3d)/config/kopterworx_exploration_sim_large_env.yaml"/>
   
   <group ns="$(arg namespace)">

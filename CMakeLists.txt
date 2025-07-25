@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(uav_frontier_exploration_3d)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   octomap_msgs
   octomap_ros
   nodelet
+  mrs_msgs
   mean_shift_clustering
 )
 find_package(Boost)

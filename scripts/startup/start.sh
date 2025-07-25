@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Absolute path to this script. /home/user/bin/foo.sh
 SCRIPT=$(readlink -f $0)
@@ -6,11 +6,22 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 cd "$SCRIPTPATH"
 
-# remove the old link
-rm .tmuxinator.yml
-
-# link the session file to .tmuxinator.yml
-ln session.yml .tmuxinator.yml
+export TMUX_SESSION_NAME=simulation
+export TMUX_SOCKET_NAME=mrs
 
 # start tmuxinator
-tmuxinator
+tmuxinator start -p ./session.yml
+
+# if we are not in tmux
+if [ -z $TMUX ]; then
+
+  # just attach to the session
+  tmux -L $TMUX_SOCKET_NAME a -t $TMUX_SESSION_NAME
+
+# if we are in tmux
+else
+
+  # switch to the newly-started session
+  tmux detach-client -E "tmux -L $TMUX_SOCKET_NAME a -t $TMUX_SESSION_NAME" 
+
+fi

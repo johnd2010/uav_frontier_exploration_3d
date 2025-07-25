@@ -1,6 +1,6 @@
 exploration:
-  global_frame: "/red/map/map"
-  base_link_frame: "/red/map/base_link"
+  global_frame: "uav1/map_locus"
+  base_link_frame: "uav1/fcu"
   # Exploration depth of octomap tree. 16 is best resolution, slowest exploration
   # Save frontiers on that level
   # experience shows that there is significant increase in search time by 
@@ -12,12 +12,12 @@ exploration:
   # bounding box: necessary to limit the simulation 
   # scenario (smaller than actual gazebo scenario)
   # used for frontier detection
-  bbx_minX: -65.0
-  bbx_maxX: 65.0
-  bbx_minY: -90.0
-  bbx_maxY: 90.0
-  bbx_minZ: 1.0
-  bbx_maxZ: 5.0
+  bbx_minX: -55.0
+  bbx_maxX: 55.0
+  bbx_minY: -55.0
+  bbx_maxY: 55.0
+  bbx_minZ: 0.5
+  bbx_maxZ: 3
 
   # Length of one side of the cube inside which we calculate information gain
   box_length: 8.0
@@ -32,10 +32,9 @@ exploration:
 sensor_model:
   # Field of view in degrees
   horizontalFOV: 360
-  verticalFOV: 30
+  verticalFOV: 180
   # VelodyneVLP16 max range in meters
-  max_range: 10
-  pitch_angle: 10.0
+  max_range: 20
 
   probability_hit: 0.7
   probability_miss: 0.4
@@ -43,7 +42,7 @@ sensor_model:
   clamping_thres_max: 0.97
   
 octomap:
-  resolution: 0.5
+  resolution: 0.4
   octree_depth: 16
   # Filename and file path for saving octomap
   filename: "octomap_large.binvox.bt"

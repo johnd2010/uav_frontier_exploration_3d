@@ -22,25 +22,21 @@ namespace frontier_server
 		m_logfile << "This is a log file for 3D-Frontier" << endl;
 
 		// Initialize publishers
-		m_bestFrontierPub = m_nh.advertise<
-			visualization_msgs::Marker>("best_frontier_marker", 1, false);
-		m_markerFrontierPub = m_nh.advertise<
-			visualization_msgs::MarkerArray>("frontier_cells_vis_array", 1, false);
-		m_markerClusteredFrontierPub = m_nh.advertise<
-			visualization_msgs::MarkerArray>("clustered_frontier_cells_vis_array", 1, false);
-		m_uavGoalPub = m_nh.advertise<
-			geometry_msgs::PoseStamped>("exploration/goal", 1, false);
+		m_bestFrontierPub = m_nh.advertise<visualization_msgs::Marker>("best_frontier_marker", 1, false);
+		m_markerFrontierPub = m_nh.advertise<visualization_msgs::MarkerArray>("frontier_cells_vis_array", 1, false);
+		m_markerClusteredFrontierPub = m_nh.advertise<visualization_msgs::MarkerArray>("clustered_frontier_cells_vis_array", 1, false);
+		
+		m_uavGoalPub = m_nh.advertise<geometry_msgs::PoseStamped>("exploration/goal", 1, false);
 		m_pubEsmState = m_nh.advertise<std_msgs::Int32>("exploration/state", 1);
 
 		// Initialize subscribers
-		m_pointReachedSub = m_nh.subscribe("point_reached", 1, 
-			&FrontierServer::pointReachedCallback, this);
-		m_currentReferenceSub = m_nh.subscribe("carrot/pose", 1, 
-			&FrontierServer::currentReferenceCallback, this);
+		// 
+		m_pointReachedSub = m_nh.subscribe("point_reached", 1, &FrontierServer::pointReachedCallback, this);
 
 		// Initialize position hold service if exploration is off
 		m_serviceExploration = m_nh.advertiseService("exploration/toggle",
 			&FrontierServer::toggleExplorationServiceCb, this);
+		m_serviceMRSPlanner = m_nh.serviceClient<mrs_msgs::ReferenceStampedSrv>("octomap_planner/reference");
 	}
 
 	FrontierServer::~FrontierServer()
@@ -275,19 +271,16 @@ namespace frontier_server
 		publishClusteredFrontier();
 	}
 
-	void FrontierServer::pointReachedCallback(std_msgs::Bool msg)
+	void FrontierServer::pointReachedCallback(mrs_msgs::ControlManagerDiagnostics msg)
 	{
-		if (msg.data)
+		m_currentGoalReached = false;
+		if(static_cast<int>(msg.tracker_status.state)==1 || static_cast<int>(msg.tracker_status.state)==3)
 		{
-			// ROS_INFO("Current goal point is reached!");
 			m_currentGoalReached = true;
 		}
+		
 	}
 
-	void FrontierServer::currentReferenceCallback(geometry_msgs::PoseStamped msg)
-	{
-		m_uavCurrentReference = msg;
-	} 
 
 	void FrontierServer::checkClusteredCells()
 	{
@@ -675,6 +668,15 @@ namespace frontier_server
 		m_goal.pose.orientation.w = 1;
 
 		m_uavGoalPub.publish(m_goal);
-		ROS_WARN_STREAM(goal.x() << " " << goal.y() << " " << goal.z() << " -> Goal published!");
+		mrs_planner_srv.request.header = m_goal.header;
+		mrs_planner_srv.request.reference.position = m_goal.pose.position;
+		mrs_planner_srv.request.reference.heading = 0.0; 
+        ROS_INFO("Entering Service call.");
+		if (m_serviceMRSPlanner.call(mrs_planner_srv)) {
+        ROS_INFO("Service call succeeded.");
+		ROS_WARN_STREAM(goal.x() << " " << goal.y() << " " << goal.z() << " -> Goal published to service");
+		} else {
+			ROS_ERROR("Failed to call service octomap_planner/reference");
+		}
 	}
 }

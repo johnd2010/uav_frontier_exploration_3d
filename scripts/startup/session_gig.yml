@@ -39,17 +39,25 @@ windows:
       panes:
         - waitForHw; roslaunch mrs_uav_autostart automatic_start.launch; exit
         - waitForControl; rosservice call /$UAV_NAME/hw_api/arming 1; sleep 2; rosservice call /$UAV_NAME/hw_api/offboard; exit
-  - slam:
-      layout: tiled
-      panes: 
-        - waitForControl; roslaunch locus locus_uav_nodelets_livox.launch robot_namespace:=$UAV_NAME #livox
-        - waitForControl; roslaunch mrs_octomap_planner octomap_planner_larics.launch
-  - exploration:
-      layout: tiled
-      panes:
-        - waitForTakeoff; source /home/colorfulcraze/Documents/Baseline/Frontiers/devel/setup.bash; roslaunch uav_frontier_exploration_3d frontier_server.launch cloud_in:=/$UAV_NAME/locus/octree_map odometry:=/$UAV_NAME/locus/odometry config_filename:=$(rospack find uav_frontier_exploration_3d)/config/kopterworx_exploration_sim_large_env.yaml
   - rviz:
       layout: tiled
       panes:
         - waitForHw; roslaunch mrs_rviz_plugins load_robot.launch
-        - waitForControl; source /home/colorfulcraze/Documents/Baseline/Frontiers/devel/setup.bash; rosrun rviz rviz -d `rospack find uav_frontier_exploration_3d`/rviz/cartographer_and_frontier.rviz
+        # - waitForHw; roslaunch mrs_rviz_plugins rviz_interface.launch
+        - waitForHw; roscd locus; rosrun rviz rviz -d rviz/uav2_locus.rviz
+
+  - octomap_planner_locus:
+      layout: tiled
+      panes:
+        - waitForControl; sleep 3; ~/.i3/layout_manager.sh ./layout.json; exit
+        # - waitForTakeoff; roslaunch locus locus_uav_nodelets.launch robot_namespace:=$UAV_NAME #ouster
+        - waitForControl; roslaunch locus locus_uav_nodelets_livox.launch robot_namespace:=$UAV_NAME #livox
+        - waitForControl; roslaunch octomapper_frontier_processor octomap_frontier_processor.launch robot_namespace:=$UAV_NAME
+        - waitForHw; roslaunch mrs_octomap_planner octomap_planner.launch
+        - waitForTakeoff; roslaunch clustering clustering_nodelet.launch robot_namespace:=$UAV_NAME
+        # - waitForTakeoff; roslaunch clustering clustering.launch robot_namespace:=$UAV_NAME
+  # - activeness:
+  #     layout: tiled
+  #     panes:
+  #       - waitForTakeoff; sleep 1; roslaunch activeness activeness.launch
+  #       - waitForTakeoff; sleep 1; roslaunch activeness activeness_nodelet.launch

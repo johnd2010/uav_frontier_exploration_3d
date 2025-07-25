@@ -5,9 +5,10 @@
 #include <uav_frontier_exploration_3d/BestFrontier.h>
 //Mean shift clustering
 #include <uav_frontier_exploration_3d/ClusteringAlgorithm.h>
-#include <dlib/clustering.h>
 #include <std_srvs/SetBool.h>
 #include <std_msgs/Int32.h>
+#include <mrs_msgs/ReferenceStampedSrv.h>
+#include <mrs_msgs/ControlManagerDiagnostics.h>
 
 namespace frontier_server
 {
@@ -48,7 +49,7 @@ namespace frontier_server
       void searchForParentsAndPublish();
       void updateGlobalFrontier(KeySet& globalFrontierCell);
       void clusterFrontierAndPublish();
-      void pointReachedCallback(std_msgs::Bool msg);
+      void pointReachedCallback(mrs_msgs::ControlManagerDiagnostics msg);
       void currentReferenceCallback(geometry_msgs::PoseStamped msg);
       void checkClusteredCells();
       bool isPointAlreadyAssigned(point3d point);
@@ -79,7 +80,7 @@ namespace frontier_server
       ros::Publisher m_markerFrontierPub, m_markerClusteredFrontierPub,
         m_bestFrontierPub, m_markerCandidatesPub,m_frontierMapPub, m_uavGoalPub,
         m_pubEsmState;
-      ros::Subscriber m_pointReachedSub, m_currentReferenceSub;
+      ros::Subscriber m_pointReachedSub,m_uavGlobalPoseSub;
 
       octomap::OcTree* m_octree {NULL};
       octomap_server::OctomapServer m_octomapServer;
@@ -92,7 +93,8 @@ namespace frontier_server
         m_explorationMaxZ, m_kernelBandwidth;
 
       bool m_currentGoalReached {true};
-      bool m_explorationToggled {false};
+      bool m_currentGoalInitialized {false};
+      bool m_explorationToggled {true};
 
       string m_configFilename;
       
@@ -109,8 +111,12 @@ namespace frontier_server
       vector<point3d> m_allUAVGoals;
 
       geometry_msgs::Pose m_uavCurrentPose;
-      geometry_msgs::PoseStamped m_uavCurrentReference;
       ros::ServiceServer m_serviceExploration;  
+
+      ros::ServiceClient m_serviceMRSPlanner;
+      mrs_msgs::ReferenceStampedSrv mrs_planner_srv;
+      float distance_threshold=0.5;
+
       ExplorationState m_currentState = ExplorationState::OFF;
     };
 }
