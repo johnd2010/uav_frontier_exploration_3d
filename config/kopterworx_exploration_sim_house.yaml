@@ -1,6 +1,6 @@
 exploration:
   # simulation
-  global_frame: "uav1/fcu"
+  global_frame: "uav1/map_locus"
   base_link_frame: "uav1/fcu"
   # Exploration depth of octomap tree. 16 is best resolution, slowest exploration
   # Save frontiers on that level
@@ -13,12 +13,20 @@ exploration:
   # bounding box: necessary to limit the simulation 
   # scenario (smaller than actual gazebo scenario)
   # used for frontier detection
-  bbx_minX: -19.0
-  bbx_maxX: 7.0
-  bbx_minY: -7.0
-  bbx_maxY: 27.0
-  bbx_minZ: 1.0
-  bbx_maxZ: 5.0
+  # bbx_minX: -19.0
+  # bbx_maxX: 7.0
+  # bbx_minY: -7.0
+  # bbx_maxY: 27.0
+  # bbx_minZ: 1.0
+  # bbx_maxZ: 5.0
+
+  #Tugbot
+  bbx_minX: 0.0
+  bbx_minY: 0.0
+  bbx_minZ: 0
+  bbx_maxX: 30.0
+  bbx_maxY: 14.0
+  bbx_maxZ: 3
 
   # Length of one side of the cube inside which we calculate information gain
   box_length: 5.0

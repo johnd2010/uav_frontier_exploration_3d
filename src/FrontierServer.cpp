@@ -34,8 +34,7 @@ namespace frontier_server
 		m_pointReachedSub = m_nh.subscribe("point_reached", 1, &FrontierServer::pointReachedCallback, this);
 
 		// Initialize position hold service if exploration is off
-		m_serviceExploration = m_nh.advertiseService("exploration/toggle",
-			&FrontierServer::toggleExplorationServiceCb, this);
+		m_serviceExploration = m_nh.advertiseService("exploration/toggle",&FrontierServer::toggleExplorationServiceCb, this);
 		m_serviceMRSPlanner = m_nh.serviceClient<mrs_msgs::ReferenceStampedSrv>("octomap_planner/reference");
 	}
 
@@ -135,6 +134,7 @@ namespace frontier_server
 		m_logfile << "Number of frontiers:" << frontierSize << endl;
 		double total_time = (ros::WallTime::now() - startTime).toSec();
 		m_logfile << "findFrontier - used total: "<< total_time << " sec" <<endl;
+		ROS_INFO_STREAM("findFrontier - used total: "<< total_time << " sec" );
 		return globalFrontierCells;
 	}
 
@@ -199,6 +199,7 @@ namespace frontier_server
 
 		double total_time = (ros::WallTime::now() - startTime).toSec();
 		m_logfile << "updateGlobalFrontier - used total: "<< total_time << " sec" <<endl;
+		ROS_INFO_STREAM("updateGlobalFrontier - used total: "<< total_time << " sec");
 	}
 
 	void FrontierServer::searchForParentsAndPublish()
@@ -239,6 +240,7 @@ namespace frontier_server
 		m_logfile << "number of parents: " << counter << endl;
 		double total_time = (ros::WallTime::now() - startTime).toSec();
 		m_logfile << "SearchForParents - used total: "<< total_time << " sec" <<endl;
+		ROS_INFO_STREAM("SearchForParents - used total: "<< total_time << " sec");
 		publishParentFrontier();
   }
 
@@ -267,6 +269,7 @@ namespace frontier_server
 		// cout << "cluster_size: " << m_clusteredCells.size() << endl;
 		double total_time_evaluation = (ros::WallTime::now() - startTime_evaluation).toSec();
 		m_logfile << "clusterFrontier used total: " << total_time_evaluation << " sec" << endl;
+		ROS_INFO_STREAM("clusterFrontier used total: " << total_time_evaluation << " sec");
 		checkClusteredCells();
 		publishClusteredFrontier();
 	}
@@ -410,7 +413,7 @@ namespace frontier_server
 
 				case ExplorationState::CHECKFORFRONTIERS:
 					m_octomapServer.runDefault();
-					m_octomapServer.publishVolume();
+					m_octomapServer.publishVolume(m_resolution,m_explorationMinX,m_explorationMaxX,m_explorationMinY,m_explorationMaxY,m_explorationMinZ,m_explorationMaxZ);
 					m_uavCurrentPose = m_octomapServer.getCurrentUAVPosition();
 					if(!m_currentGoalReached)
 						ROS_WARN_STREAM_THROTTLE(3.0,
@@ -466,6 +469,7 @@ namespace frontier_server
 			}
 			ros::WallTime currentTime = ros::WallTime::now();
 			m_logfile << "Frontier exploration used total :" << (currentTime - startTime).toSec() << " sec" << endl;
+			ROS_INFO_STREAM("Frontier exploration used total :" << (currentTime - startTime).toSec() << " sec" );
 			loopRate.sleep();
 		}
 	}

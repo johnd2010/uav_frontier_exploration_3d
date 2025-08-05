@@ -249,6 +249,7 @@ namespace octomap_server
 
 		double total_time_insert = (ros::WallTime::now() - startTime_insert).toSec();
 		m_logfile << "OctomapServer -InsertScan used total " << total_time_insert << " sec" << endl;
+		ROS_INFO_STREAM("OctomapServer -InsertScan used total " << total_time_insert << " sec");
 			
 		if (m_compressMap)
 			m_octree->prune();
@@ -337,32 +338,63 @@ namespace octomap_server
 		return neighborFound;
 	}
 
-	void OctomapServer::publishVolume()
+	void OctomapServer::publishVolume(float m_resolution, float m_explorationMinX,float m_explorationMaxX,float m_explorationMinY,float m_explorationMaxY,float m_explorationMinZ,float m_explorationMaxZ)
 	{
-		double occVol, freeVol {0};
-		double totalVol, leftVol;
 
-		for (OcTree::leaf_iterator it = m_octree->begin_leafs(), 
-			end = m_octree->end_leafs(); it != end; ++it)
+		const double resolution = m_resolution;
+		
+		size_t total_voxels = 0;
+		size_t occupied_voxels = 0;
+		size_t free_voxels = 0;
+		size_t unknown_voxels = 0;
+
+		// Iterate over all coordinates in the BBX
+		for (double x = m_explorationMinX; x <= m_explorationMaxX; x += resolution)
+		{
+			for (double y = m_explorationMinY; y <= m_explorationMaxY; y += resolution)
 			{
-				double voxelSize = m_octree->getNodeSize(m_maxTreeDepth);
-				if(m_octree->isNodeOccupied(*it))
-					occVol += pow(voxelSize, 3);
-				else
-					freeVol += pow(voxelSize, 3);		
-		}
-		totalVol = m_totalVol;
-		leftVol = totalVol - (occVol + freeVol);
+				for (double z = m_explorationMinZ; z <= m_explorationMaxZ; z += resolution)
+				{
+					total_voxels++;
+					octomap::OcTreeNode* node = m_octree->search(x, y, z);
 
+					if (node == nullptr)
+					{
+						unknown_voxels++;
+					}
+					else if (m_octree->isNodeOccupied(node))
+					{
+						occupied_voxels++;
+					}
+					else
+					{
+						free_voxels++;
+					}
+				}
+			}
+		}
+		 // Avoid divide-by-zero
 		std_msgs::Float64MultiArray allVolumes;
 		allVolumes.data.resize(5);
-		allVolumes.data[0] = occVol;
-		allVolumes.data[1] = freeVol;
-		allVolumes.data[2] = totalVol;
-		allVolumes.data[3] = leftVol;
-		allVolumes.data[4] = ros::Time::now().toSec();
-	
-		m_pubVolumes.publish(allVolumes);
+		if (total_voxels > 0)
+		{
+			allVolumes.data[2] = total_voxels;
+			allVolumes.data[0] = 100.0 * occupied_voxels / total_voxels;
+			allVolumes.data[1] = 100.0 * free_voxels     / total_voxels;
+			allVolumes.data[3] = 100.0 * unknown_voxels  / total_voxels;
+			allVolumes.data[4] = ros::Time::now().toSec();
+
+		}
+		else
+		{
+			allVolumes.data[0] = allVolumes.data[1] = allVolumes.data[2] = allVolumes.data[3] = 0.0;
+		}
+		ROS_INFO_STREAM("Occupied : "<<allVolumes.data[0]<< " Free : "<< allVolumes.data[1]<< " Unknown : "<< allVolumes.data[3]  << " Known : "<<allVolumes.data[0] + allVolumes.data[1]);
+		if((allVolumes.data[0] + allVolumes.data[1])>90.0)
+		{
+			ROS_INFO_STREAM_ONCE("Exploration successful");
+			std::system("pkill -f rosmaster");
+		}
 	}
 
 	void OctomapServer::publishOccAndFree()

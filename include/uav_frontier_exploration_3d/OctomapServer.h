@@ -66,7 +66,7 @@ namespace octomap_server
       void genNeighborCoord(float x, float y, float z);
       void genNeighborCoord(
         octomap::OcTreeKey start_key, std::vector<octomap::point3d>& occupiedNeighbor);
-      void publishVolume();
+      void publishVolume(float m_resolution,float m_explorationMinX,float m_explorationMaxX,float m_explorationMinY,float m_explorationMaxY,float m_explorationMinZ,float m_explorationMaxZ);
 
     protected:
       inline static void updateMinKey(const octomap::OcTreeKey& in, octomap::OcTreeKey& min)
