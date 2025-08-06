@@ -27,6 +27,13 @@ exploration:
   bbx_maxX: 30.0
   bbx_maxY: 14.0
   bbx_maxZ: 3
+  #Forest
+  bbx_minX: -60.0
+  bbx_minY: -60.0
+  bbx_minZ: 0.0
+  bbx_maxX: 0.0
+  bbx_maxY: 0.0
+  bbx_maxZ: 3
 
   # Length of one side of the cube inside which we calculate information gain
   box_length: 5.0

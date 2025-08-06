@@ -248,8 +248,8 @@ namespace octomap_server
 		maxPt = m_octree->keyToCoord(m_updateBBXMax);
 
 		double total_time_insert = (ros::WallTime::now() - startTime_insert).toSec();
-		m_logfile << "OctomapServer -InsertScan used total " << total_time_insert << " sec" << endl;
-		ROS_INFO_STREAM("OctomapServer -InsertScan used total " << total_time_insert << " sec");
+		m_logfile << "OctomapServer -InsertScan used total: " << total_time_insert << " sec" << endl;
+		ROS_INFO_STREAM("OctomapServer -InsertScan used total: " << total_time_insert << " sec");
 			
 		if (m_compressMap)
 			m_octree->prune();

@@ -93,6 +93,7 @@ namespace best_frontier
 		m_logfile << "Best frontier point: " << bestFrontier << endl;
 		double total_time_frontier = (ros::WallTime::now() - startTime_frontier).toSec();
 		m_logfile << "Best frontier used total: "<< total_time_frontier << " sec" << endl;
+		ROS_INFO_STREAM("Best frontier used total: "<< total_time_frontier << " sec" );
 
 		return bestFrontier;
 	}

@@ -4,7 +4,7 @@ NUM_RUNS=10
 SLEEP_IN_BETWEEN_RUN_TIME=30
 SLEEP_TIME=300  #1800 fo 60x60 forest
 
-for i in $(seq 1 $NUM_RUNS); do
+for i in 4 8; do
     echo "▶️ Run $i starting..."
     
     rm -f /tmp/sim_done_flag
